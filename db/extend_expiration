@@ -1,0 +1,15 @@
+#!/bin/sh
+########################################
+# This script runs a stored procedure to
+# create Patron SIF record entries 
+# corresponding to patrons whose 
+# expiration date should be extended: 
+# faculty, staff, and students.
+#
+# Last revised: 2006-09-07 chunt
+########################################
+
+vger_support_run sif_extend_expiration
+mv sif_extend_expiration.out /m1/voyager/ucladb/local/patron/patron_extend_expiration.sif
+/opt/local/bin/vger_patron_update patron_extend_expiration.sif
+vger_support_run patron_sif_processed

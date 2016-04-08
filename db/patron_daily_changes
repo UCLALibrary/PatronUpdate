@@ -1,0 +1,26 @@
+#!/bin/sh
+########################################
+# This script loads data from two text 
+# files into the vger_report schema. The
+# first is registrar data and the second
+# is BruinCard data. Then a set of stored
+# procedures are run to create Patron SIF
+# record entries corresponding to (1) new
+# patrons from the registrar data, (2) 
+# level of issue changes from the BruinCard
+# data, and (3) address changes from the 
+# registrar data. The file that is created
+# is then run against the Voyager Patron
+# Update utility and finally the new fields 
+# are then marked as processed with the date
+# they are run.
+#
+# Last revised: 2006-09-07 chunt
+########################################
+
+vger_report_load /m1/voyager/ucladb/local/patron/registrar_data.txt registrar_data.ctl
+vger_report_load /m1/voyager/ucladb/local/patron/bruincard_data.txt bruincard_data.ctl
+vger_support_run sif_daily_changes
+mv sif_daily_changes.out /m1/voyager/ucladb/local/patron/patron_daily_changes.sif
+/opt/local/bin/vger_patron_update patron_daily_changes.sif
+vger_support_run patron_sif_processed

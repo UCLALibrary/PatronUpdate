@@ -1,0 +1,31 @@
+#!/bin/sh
+########################################
+# This script loads data from two text 
+# files into the vger_report schema. The
+# first is registrar data and the second
+# is BruinCard data. Then a set of stored
+# procedures are run to create Patron SIF
+# record entries corresponding to (1) new
+# patrons from the registrar data, (2) 
+# level of issue changes from the BruinCard
+# data, and (3) address changes from the 
+# registrar data. The file that is created
+# is then run against the Voyager Patron
+# Update utility and finally the new fields 
+# are then marked as processed with the date
+# they are run.
+#
+# Last revised: 2006-09-08 chunt
+########################################
+
+# Load daily registrar data.
+/opt/local/bin/vger_sqlldr_load vger_report/vger_report_pwd /m1/voyager/ucladb/local/patron/registrar_data.txt /m1/voyager/ucladb/local/patron/registrar_data.ctl
+# Load daily BruinCard data.
+/opt/local/bin/vger_sqlldr_load vger_report/vger_report_pwd /m1/voyager/ucladb/local/patron/bruincard_data.txt /m1/voyager/ucladb/local/patron/bruincard_data.ctl
+# Run the procedures that create the SIF records in the database table
+# and get those records.
+/opt/local/bin/vger_sqlplus_run vger_support/vger_support_pwd /m1/voyager/ucladb/local/patron/sif_daily_changes
+# Run our interface script to Voyager's patron update utility.
+/opt/local/bin/vger_patron_update sif_daily_changes.out
+# Mark the records as processed on this date.
+/opt/local/bin/vger_sqlplus_run vger_support/vger_support_pwd /m1/voyager/ucladb/local/patron/patron_sif_processed

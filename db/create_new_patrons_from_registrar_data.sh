@@ -1,0 +1,5 @@
+vger_report_run new_patrons_from_registrar_data
+vger_report_run patron_sif
+mv patron_sif.out patron.sif
+./ppatron_update.sh patron
+vger_report_run patron_sif_processed

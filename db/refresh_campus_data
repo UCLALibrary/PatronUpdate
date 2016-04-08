@@ -1,0 +1,12 @@
+#!/bin/sh
+########################################
+# This script updates tables in 
+# VGER_REPORT with campus data.
+#
+# Last revised: 2006-09-06 chunt
+########################################
+
+vger_report_load /m1/voyager/ucladb/local/patron/registrar_data.txt registrar_data.ctl
+vger_report_load /m1/voyager/ucladb/local/patron/bruincard_data.txt bruincard_data.ctl
+vger_report_load /m1/voyager/ucladb/local/patron/fsemail_data.txt fsemail_data.ctl
+

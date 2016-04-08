@@ -1,0 +1,244 @@
+
+REM VGER_SUPPORT SP_FSEMAIL_SYNC
+
+  CREATE OR REPLACE PROCEDURE "VGER_SUPPORT"."SP_FSEMAIL_SYNC" AS
+BEGIN
+
+INSERT INTO "VGER_SUPPORT"."FSEMAIL"
+SELECT *
+  FROM "VGER_SUPPORT"."TMP_FSEMAIL" t
+  WHERE NOT EXISTS
+  (SELECT * FROM "VGER_SUPPORT"."FSEMAIL" f
+    WHERE f.universityid = t.universityid);
+
+DELETE FROM "VGER_SUPPORT"."FSEMAIL" f
+  WHERE NOT EXISTS
+  (SELECT * FROM "VGER_SUPPORT"."TMP_FSEMAIL" t
+    WHERE f.universityid = t.universityid);
+
+UPDATE
+(select
+t.name old_name, f.name new_name,
+t.email old_email, f.email new_email,
+t.deptcode old_deptcode, f.deptcode new_deptcode,
+t.department old_department, f.department new_department
+from "VGER_SUPPORT"."TMP_FSEMAIL" t INNER JOIN "VGER_SUPPORT"."FSEMAIL" f ON
+t.universityid = f.universityid
+WHERE
+t.name <> f.name OR
+t.email <> f.email OR
+t.deptcode <> f.deptcode OR
+t.department <> f.department
+) SET
+old_name = new_name,
+old_email = new_email,
+old_deptcode = new_deptcode,
+old_department = new_department
+;
+
+END;
+/
+ 
+  GRANT EXECUTE ON "VGER_SUPPORT"."FUNDHIERARCHYHASFAU_UCLA" TO PUBLIC;
+ 
+  GRANT EXECUTE ON "VGER_SUPPORT"."FUNDLINEAGE_UCLA" TO PUBLIC;
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."FUND_TRANSACTION_TYPE" TO "UCLADB";
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."FUND_TRANSACTION_TYPE" TO "UCLA_PREADDB";
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."FUND_TRANSACTION_TYPE" TO "UCLADB";
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."FUND_TRANSACTION_TYPE" TO "UCLA_PREADDB";
+ 
+  GRANT EXECUTE ON "VGER_SUPPORT"."TAGEXISTS" TO PUBLIC;
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."UCLADB_RESERVE_TRANS" TO "UCLA_PREADDB";
+ 
+  GRANT EXECUTE ON "VGER_SUPPORT"."UNIFIX" TO PUBLIC;
+ 
+REM VGER_SUPPORT TGR_FSEMAIL_DEL
+
+  CREATE OR REPLACE TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_DEL" 
+ AFTER DELETE ON FSEMAIL 
+FOR EACH ROW 
+BEGIN
+  insert into fsemail_sync_log (uniqueid, entry) values
+  (fsemail_sync_log_seq.nextval, 'deleted:' || :old.universityid || '|' || :old.name || '|' || :old.email || '|' || :old.deptcode || '|' || :old.department);
+END;
+/
+ALTER TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_DEL" ENABLE;
+ 
+REM VGER_SUPPORT TGR_FSEMAIL_INSUPD
+
+  CREATE OR REPLACE TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_INSUPD" 
+ AFTER INSERT OR UPDATE ON FSEMAIL 
+FOR EACH ROW 
+BEGIN
+  insert into fsemail_sync_log (uniqueid, entry) values
+  (fsemail_sync_log_seq.nextval, 'inserted/updated:' || :new.universityid || '|' || :new.name || '|' || :new.email || '|' || :new.deptcode || '|' || :new.department);
+END;
+/
+ALTER TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_INSUPD" ENABLE;
+ 
+  GRANT EXECUTE ON "VGER_SUPPORT"."FUNDHIERARCHYHASFAU_UCLA" TO PUBLIC;
+ 
+  GRANT EXECUTE ON "VGER_SUPPORT"."FUNDLINEAGE_UCLA" TO PUBLIC;
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."FUND_TRANSACTION_TYPE" TO "UCLADB";
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."FUND_TRANSACTION_TYPE" TO "UCLA_PREADDB";
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."FUND_TRANSACTION_TYPE" TO "UCLADB";
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."FUND_TRANSACTION_TYPE" TO "UCLA_PREADDB";
+ 
+  GRANT EXECUTE ON "VGER_SUPPORT"."TAGEXISTS" TO PUBLIC;
+ 
+  GRANT SELECT ON "VGER_SUPPORT"."UCLADB_RESERVE_TRANS" TO "UCLA_PREADDB";
+ 
+  GRANT EXECUTE ON "VGER_SUPPORT"."UNIFIX" TO PUBLIC;
+ 
+REM VGER_SUPPORT FSEMAIL_PK
+
+  CREATE UNIQUE INDEX "VGER_SUPPORT"."FSEMAIL_PK" ON "VGER_SUPPORT"."FSEMAIL" ("UNIVERSITYID") 
+  ;
+ 
+REM VGER_SUPPORT FSEMAIL_SYNC_LOG_PK
+
+  CREATE UNIQUE INDEX "VGER_SUPPORT"."FSEMAIL_SYNC_LOG_PK" ON "VGER_SUPPORT"."FSEMAIL_SYNC_LOG" ("UNIQUEID") 
+  ;
+ 
+REM VGER_SUPPORT TMP_FSEMAIL_PK
+
+  CREATE UNIQUE INDEX "VGER_SUPPORT"."TMP_FSEMAIL_PK" ON "VGER_SUPPORT"."TMP_FSEMAIL" ("UNIVERSITYID") 
+  ;
+ 
+REM VGER_SUPPORT SP_FSEMAIL_SYNC
+
+  CREATE OR REPLACE PROCEDURE "VGER_SUPPORT"."SP_FSEMAIL_SYNC" AS
+BEGIN
+
+INSERT INTO "VGER_SUPPORT"."FSEMAIL"
+SELECT *
+  FROM "VGER_SUPPORT"."TMP_FSEMAIL" t
+  WHERE NOT EXISTS
+  (SELECT * FROM "VGER_SUPPORT"."FSEMAIL" f
+    WHERE f.universityid = t.universityid);
+
+DELETE FROM "VGER_SUPPORT"."FSEMAIL" f
+  WHERE NOT EXISTS
+  (SELECT * FROM "VGER_SUPPORT"."TMP_FSEMAIL" t
+    WHERE f.universityid = t.universityid);
+
+UPDATE
+(select
+t.name old_name, f.name new_name,
+t.email old_email, f.email new_email,
+t.deptcode old_deptcode, f.deptcode new_deptcode,
+t.department old_department, f.department new_department
+from "VGER_SUPPORT"."TMP_FSEMAIL" t INNER JOIN "VGER_SUPPORT"."FSEMAIL" f ON
+t.universityid = f.universityid
+WHERE
+t.name <> f.name OR
+t.email <> f.email OR
+t.deptcode <> f.deptcode OR
+t.department <> f.department
+) SET
+old_name = new_name,
+old_email = new_email,
+old_deptcode = new_deptcode,
+old_department = new_department
+;
+
+END;
+/
+ 
+REM VGER_SUPPORT FSEMAIL_SYNC_LOG_SEQ
+
+   CREATE SEQUENCE  "VGER_SUPPORT"."FSEMAIL_SYNC_LOG_SEQ"  MINVALUE 1 MAXVALUE 1.00000000000000E+27 INCREMENT BY 1 START WITH 1074 NOCACHE  NOORDER  NOCYCLE ;
+ 
+REM VGER_SUPPORT FSEMAIL
+
+  CREATE TABLE "VGER_SUPPORT"."FSEMAIL" 
+   (	"UNIVERSITYID" VARCHAR2(9) NOT NULL ENABLE, 
+	"NAME" VARCHAR2(35), 
+	"EMAIL" VARCHAR2(50), 
+	"DEPTCODE" VARCHAR2(4), 
+	"DEPARTMENT" VARCHAR2(30)
+   ) ;
+ CREATE UNIQUE INDEX "VGER_SUPPORT"."FSEMAIL_PK" ON "VGER_SUPPORT"."FSEMAIL" ("UNIVERSITYID") 
+  ;
+  ALTER TABLE "VGER_SUPPORT"."FSEMAIL" ADD CONSTRAINT "FSEMAIL_PK" PRIMARY KEY ("UNIVERSITYID") ENABLE;
+ 
+REM VGER_SUPPORT TGR_FSEMAIL_INSUPD
+
+  CREATE OR REPLACE TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_INSUPD" 
+ AFTER INSERT OR UPDATE ON FSEMAIL 
+FOR EACH ROW 
+BEGIN
+  insert into fsemail_sync_log (uniqueid, entry) values
+  (fsemail_sync_log_seq.nextval, 'inserted/updated:' || :new.universityid || '|' || :new.name || '|' || :new.email || '|' || :new.deptcode || '|' || :new.department);
+END;
+/
+ALTER TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_INSUPD" ENABLE;
+ 
+REM VGER_SUPPORT TGR_FSEMAIL_DEL
+
+  CREATE OR REPLACE TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_DEL" 
+ AFTER DELETE ON FSEMAIL 
+FOR EACH ROW 
+BEGIN
+  insert into fsemail_sync_log (uniqueid, entry) values
+  (fsemail_sync_log_seq.nextval, 'deleted:' || :old.universityid || '|' || :old.name || '|' || :old.email || '|' || :old.deptcode || '|' || :old.department);
+END;
+/
+ALTER TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_DEL" ENABLE;
+ 
+REM VGER_SUPPORT FSEMAIL_SYNC_LOG
+
+  CREATE TABLE "VGER_SUPPORT"."FSEMAIL_SYNC_LOG" 
+   (	"UNIQUEID" NUMBER NOT NULL ENABLE, 
+	"ENTRY" VARCHAR2(4000)
+   ) ;
+ CREATE UNIQUE INDEX "VGER_SUPPORT"."FSEMAIL_SYNC_LOG_PK" ON "VGER_SUPPORT"."FSEMAIL_SYNC_LOG" ("UNIQUEID") 
+  ;
+  ALTER TABLE "VGER_SUPPORT"."FSEMAIL_SYNC_LOG" ADD CONSTRAINT "FSEMAIL_SYNC_LOG_PK" PRIMARY KEY ("UNIQUEID") ENABLE;
+ 
+REM VGER_SUPPORT TMP_FSEMAIL
+
+  CREATE TABLE "VGER_SUPPORT"."TMP_FSEMAIL" 
+   (	"UNIVERSITYID" VARCHAR2(9) NOT NULL ENABLE, 
+	"NAME" VARCHAR2(35), 
+	"EMAIL" VARCHAR2(50), 
+	"DEPTCODE" VARCHAR2(4), 
+	"DEPARTMENT" VARCHAR2(30)
+   ) ;
+ CREATE UNIQUE INDEX "VGER_SUPPORT"."TMP_FSEMAIL_PK" ON "VGER_SUPPORT"."TMP_FSEMAIL" ("UNIVERSITYID") 
+  ;
+  ALTER TABLE "VGER_SUPPORT"."TMP_FSEMAIL" ADD CONSTRAINT "TMP_FSEMAIL_PK" PRIMARY KEY ("UNIVERSITYID") ENABLE;
+ 
+REM VGER_SUPPORT TGR_FSEMAIL_DEL
+
+  CREATE OR REPLACE TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_DEL" 
+ AFTER DELETE ON FSEMAIL 
+FOR EACH ROW 
+BEGIN
+  insert into fsemail_sync_log (uniqueid, entry) values
+  (fsemail_sync_log_seq.nextval, 'deleted:' || :old.universityid || '|' || :old.name || '|' || :old.email || '|' || :old.deptcode || '|' || :old.department);
+END;
+/
+ALTER TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_DEL" ENABLE;
+ 
+REM VGER_SUPPORT TGR_FSEMAIL_INSUPD
+
+  CREATE OR REPLACE TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_INSUPD" 
+ AFTER INSERT OR UPDATE ON FSEMAIL 
+FOR EACH ROW 
+BEGIN
+  insert into fsemail_sync_log (uniqueid, entry) values
+  (fsemail_sync_log_seq.nextval, 'inserted/updated:' || :new.universityid || '|' || :new.name || '|' || :new.email || '|' || :new.deptcode || '|' || :new.department);
+END;
+/
+ALTER TRIGGER "VGER_SUPPORT"."TGR_FSEMAIL_INSUPD" ENABLE;
+ 

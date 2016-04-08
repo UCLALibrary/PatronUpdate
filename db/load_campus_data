@@ -1,0 +1,5 @@
+#!/bin/sh
+vger_report_run CMP_BRUINCARD
+vger_report_run CMP_REGISTRAR
+vger_report_load /m1/voyager/ucladb/local/patron/bruincard_data.txt bruincard_data.ctl
+vger_report_load /m1/voyager/ucladb/local/patron/registrar_data.txt registrar_data.ctl
